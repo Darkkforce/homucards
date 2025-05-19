@@ -176,15 +176,48 @@ async def pull_card_from_series(user_id: int, series_name: str):
         return card_id, card_name, filename
 
 
-async def add_card_to_user(user_id: int, card_id: int):
+async def add_card_to_user(user_id, card_id):
     async with aiosqlite.connect(DB_FILE) as db:
         await db.execute(
             """
             INSERT INTO user_cards (user_id, card_id, quantity)
             VALUES (?, ?, 1)
-            ON CONFLICT(user_id, card_id) DO UPDATE
-            SET quantity = quantity + 1
+            ON CONFLICT(user_id, card_id)
+            DO UPDATE SET quantity = quantity + 1;
             """,
             (user_id, card_id),
         )
         await db.commit()
+
+
+async def get_card_count_for_user(user_id, card_id):
+    async with aiosqlite.connect(DB_FILE) as db:
+        cursor = await db.execute(
+            "SELECT quantity FROM user_cards WHERE user_id=? AND card_id=?",
+            (user_id, card_id),
+        )
+        row = await cursor.fetchone()
+    return row[0] if row else 0
+
+async def get_user_inventory(user_id: int, limit: int, offset: int):
+    async with aiosqlite.connect(DB_FILE) as db:
+        cursor = await db.execute(
+            """
+            SELECT c.id, c.name, uc.quantity
+            FROM cards c
+            JOIN user_cards uc ON c.id = uc.card_id
+            WHERE uc.user_id = ?
+            ORDER BY c.name
+            LIMIT ? OFFSET ?
+            """,
+            (user_id, limit, offset)
+        )
+        rows = await cursor.fetchall()
+
+        # Também busca total para saber se tem mais páginas
+        cursor2 = await db.execute(
+            "SELECT COUNT(*) FROM user_cards WHERE user_id = ?", (user_id,)
+        )
+        total_count = (await cursor2.fetchone())[0]
+
+    return rows, total_count

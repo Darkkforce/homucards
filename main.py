@@ -7,6 +7,10 @@ from database.queries import load_series_and_cards
 from config import BOT_TOKEN
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
+from handlers.commands import inventario, inventario_button_handler
+from handlers.commands import removerid
+
+
 
 def setup_event_loop():
     """Configuração específica para Windows"""
@@ -26,7 +30,10 @@ def register_handlers(app):
         CommandHandler("username", username_cmd),
         CommandHandler("pull", pull_start),
         CommandHandler("ajuda", ajuda_cmd),
-        CallbackQueryHandler(button_handler)
+        CallbackQueryHandler(button_handler),
+        CommandHandler("inventario", inventario),
+        CallbackQueryHandler(inventario_button_handler, pattern=r"^inv_"),
+        CommandHandler("removerid", removerid)
     ]
     
     for handler in handlers:

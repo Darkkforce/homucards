@@ -33,8 +33,9 @@ def load_optimized_image(image_path: str) -> BytesIO:
         buffer.seek(0)
         return buffer  
 
-def get_card_image(series: str, filename: str) -> bytes:
-    """Obtém a imagem da carta com cache"""
-    path = os.path.join(CARDS_DIR, series, filename)
-    return load_image(path)
+def get_card_image(tipo: str, series: str, filename: str) -> bytes:
+    # tipo pode ser: "animes", "series", "jogos"
+    path = Path(CARDS_DIR) / tipo / series / filename
+    with path.open("rb") as f:
+        return f.read()
 

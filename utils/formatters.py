@@ -15,7 +15,6 @@ def formatar_card(filename: str) -> str:
     return nome.replace("_", " ").title()
 
 
-
 def formatar_categoria(nome: str) -> str:
     return nome.replace("_", " ").title()
 
