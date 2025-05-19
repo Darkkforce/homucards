@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*.env
+
+# VSCode settings
+.vscode/
+
+# Bot tokens / segredos
+config.py
+homucards.db
+
+# Cache / assets grandes
+assets
